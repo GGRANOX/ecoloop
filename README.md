@@ -2,6 +2,8 @@
 
 > **Small Actions. Big Impact.** — Smart AI technology for a cleaner and greener planet.
 
+**Live demo:** <https://ecoloop-azure.vercel.app> (режим DEMO) · API docs: <https://ecoloop-azure.vercel.app/docs>
+
 Сайт определяет по фото, **пластик** это или **бумага**, и показывает, как три академических алгоритма —
 **Bayes**, **MDP** и **A\*** — участвуют в принятии решения:
 
@@ -157,7 +159,8 @@ api/index.py         точка входа для Vercel
 
 ## Деплой (Vercel)
 
-`vercel.json` отдаёт `frontend/` как статику, а `/api/*` и `/docs` — в serverless-функцию `api/index.py` (тот же FastAPI-app).
+`vercel.json` отдаёт `frontend/` как статику, а `/api/*` и `/docs` переписывает в serverless-функцию `api/index.py`
+(тот же FastAPI-app; исходный путь передаётся параметром `__path` и восстанавливается обёрткой).
 PyTorch слишком велик для serverless-функции, поэтому **на Vercel сайт всегда работает в режиме DEMO**; режим MODEL — при локальном запуске с обученными весами.
 
 ```bash

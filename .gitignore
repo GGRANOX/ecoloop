@@ -12,3 +12,5 @@ data/*
 backend/ml/model/*.pt
 backend/ml/model/meta.json
 .claude/settings.local.json
+
+.vercel
