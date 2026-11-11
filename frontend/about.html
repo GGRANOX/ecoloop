@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — ECOLOOP</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2320B879'/%3E%3Cpath d='M13 25c0-7 5-12 15-12-1 9-5 14-11 14-2 0-3-.5-4-2z' fill='%23F0FAF5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="nav"></div>
+  <main id="main">
+    <section class="hero page-hero">
+      <div class="container reveal">
+        <span class="eyebrow" style="color:var(--mint);background:rgba(154,230,180,.1)">About the project</span>
+        <h1>Why <span class="grad-text">ECOLOOP</span>?</h1>
+        <p class="sub">Small Actions. Big Impact. A student project that shows how classic AI algorithms turn a photo into a responsible decision.</p>
+      </div>
+      <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30c240 30 480 30 720 0s480-30 720 0v30H0z" fill="currentColor"/></svg>
+    </section>
+
+    <section class="section" style="padding-top:40px">
+      <div class="container grid grid-2" style="align-items:center">
+        <div class="reveal">
+          <span class="eyebrow">The problem</span>
+          <h2>Wrong sorting ruins good recycling</h2>
+          <p>When a plastic bottle ends up with paper, or greasy food packaging lands in the recycling bin, the whole batch can be contaminated. Contaminated loads are often rejected and sent to landfill or incineration — even the items that were sorted correctly.</p>
+          <p>People are unsure which bin is right, rules differ between cities, and manual sorting at facilities is slow, expensive and unpleasant work.</p>
+        </div>
+        <div class="grid grid-2 reveal d1">
+          <div class="card stat"><div class="num"><span data-count="2.01" data-decimals="2"></span>B t</div><div class="lbl">municipal waste per year (World Bank)</div></div>
+          <div class="card stat"><div class="num"><span data-count="9"></span>%</div><div class="lbl">of plastic waste recycled (OECD)</div></div>
+          <div class="card stat"><div class="num">~<span data-count="25"></span>%</div><div class="lbl">recycling contamination often reported</div></div>
+          <div class="card stat"><div class="num"><span data-count="17"></span></div><div class="lbl">trees saved per tonne of recycled paper</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark">
+      <div class="container grid grid-3">
+        <div class="glass reveal"><div class="icon-tile" data-icon="target"></div><h3>Goals</h3><ul class="check-list"><li>Recognise plastic vs paper from a photo</li><li>Make the AI's reasoning transparent</li><li>Teach sorting through play</li></ul></div>
+        <div class="glass reveal d1"><div class="icon-tile" data-icon="brain"></div><h3>Role of AI</h3><p>Computer vision sees the material; probability theory measures how sure we are; decision theory chooses the safest action; search plans the movement.</p></div>
+        <div class="glass reveal d2"><div class="icon-tile" data-icon="bolt"></div><h3>Benefits of automation</h3><ul class="check-list"><li>Fewer contaminated batches</li><li>Consistent 24/7 sorting</li><li>Safer jobs for people</li><li>Data about waste streams</li></ul></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="center reveal"><span class="eyebrow">For the presentation</span><h2>The algorithms, explained simply</h2></div>
+        <div class="grid" style="margin-top:36px;gap:28px">
+          <article class="card algo-explain reveal">
+            <div class="icon-tile" data-icon="camera"></div>
+            <div>
+              <h3>0 · CNN — the eyes (MobileNetV2, transfer learning)</h3>
+              <p>A convolutional neural network pre-trained on ImageNet already knows edges, textures and shapes. We replace its last layer with two outputs (plastic, paper) and fine-tune it on the TrashNet photos. The softmax output — for example <span class="mono">P(plastic)=0.83, P(paper)=0.17</span> — is the <b>evidence</b> for the next steps.</p>
+              <p class="muted">Until trained weights exist, a transparent DEMO analyser (colour, highlights, texture) is used and clearly marked.</p>
+            </div>
+          </article>
+          <article class="card algo-explain reveal">
+            <div class="icon-tile" data-icon="sigma"></div>
+            <div>
+              <h3>1 · Bayes' theorem — how sure are we?</h3>
+              <div class="formula" style="margin-bottom:14px">P(C|E) = P(E|C) · P(C) / P(E)</div>
+              <p><b>Prior P(C)</b> — what we believe before seeing the photo (e.g. 45% of items in the bin are plastic). <b>Likelihood P(E|C)</b> — how likely the classifier's output is if the item really is plastic or paper (taken from the model's confusion matrix). <b>P(E)</b> — the total probability of this evidence, used to normalise.</p>
+              <p><b>Analogy:</b> a doctor combines how common a disease is with how reliable a test is. A positive result from an unreliable test should not make us 100% sure.</p>
+            </div>
+          </article>
+          <article class="card algo-explain reveal">
+            <div class="icon-tile" data-icon="network"></div>
+            <div>
+              <h3>2 · MDP — what should the robot do?</h3>
+              <p>A <b>Markov Decision Process</b> describes states (<i>ItemDetected, MaterialIdentified, LowConfidence, ReadyToSort</i>), actions (<i>Sort Plastic, Sort Paper, Inspect Again</i>), transition probabilities and rewards (+10 correct, −10 wrong, −1 inspect). <b>Value iteration</b> repeatedly applies the Bellman equation until the values stop changing, giving the optimal policy.</p>
+              <p><b>Analogy:</b> if you are not sure which exam answer is right and a wrong answer costs a lot, it is worth spending a minute re-reading the question. The discount factor <b>γ</b> says how patient the robot is.</p>
+            </div>
+          </article>
+          <article class="card algo-explain reveal">
+            <div class="icon-tile" data-icon="route"></div>
+            <div>
+              <h3>3 · A* — how does the robot get there?</h3>
+              <div class="formula" style="margin-bottom:14px">f(n) = g(n) + h(n)</div>
+              <p><b>g(n)</b> is the distance already travelled, <b>h(n)</b> the Manhattan-distance estimate to the bin. A* always expands the most promising cell first (open list), remembers explored cells (closed list) and — because h never overestimates — returns the shortest path, or reports that no path exists.</p>
+              <p><b>Analogy:</b> a GPS that prefers roads heading towards your destination instead of trying every street in the city.</p>
+            </div>
+          </article>
+        </div>
+        <div class="center" style="margin-top:40px"><a class="btn" href="lab.html"><span data-icon="brain"></span> Try them in the Lab</a></div>
+      </div>
+    </section>
+  </main>
+  <div id="footer"></div>
+  <script type="module" src="js/common.js"></script>
+</body>
+</html>

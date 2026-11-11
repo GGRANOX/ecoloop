@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Smart Sorting — ECOLOOP</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2320B879'/%3E%3Cpath d='M13 25c0-7 5-12 15-12-1 9-5 14-11 14-2 0-3-.5-4-2z' fill='%23F0FAF5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="nav"></div>
+  <main id="main">
+    <section class="hero page-hero">
+      <div class="container reveal">
+        <span class="eyebrow" style="color:var(--mint);background:rgba(154,230,180,.1)">Main feature</span>
+        <h1>AI Smart <span class="grad-text">Sorting</span></h1>
+        <p class="sub">Upload a photo of a single item. The classifier, Bayes' theorem, an MDP and A* decide together where it goes.</p>
+        <div id="mode-chip" class="chip" style="margin-top:8px"><i></i>Checking AI mode…</div>
+      </div>
+      <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30c240 30 480 30 720 0s480-30 720 0v30H0z" fill="currentColor"/></svg>
+    </section>
+
+    <section class="section" style="padding-top:40px">
+      <div class="container sort-grid">
+        <!-- upload -->
+        <div class="card reveal">
+          <h3>1. Upload a photo</h3>
+          <p class="muted">JPG, PNG or WEBP · up to 5 MB · one item, plain background works best.</p>
+          <label class="dropzone" id="dropzone" tabindex="0" aria-describedby="drop-help">
+            <input type="file" id="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif" class="sr-only">
+            <div id="drop-empty">
+              <svg class="up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+              <strong>Drag & drop an image here</strong>
+              <p class="muted" id="drop-help" style="margin:6px 0 0">or click to choose a file</p>
+            </div>
+            <img id="preview" class="preview" alt="Preview of the uploaded item" hidden>
+          </label>
+          <div class="drop-actions">
+            <button class="btn" id="analyze" disabled><span data-icon="sparkle"></span> Analyze</button>
+            <button class="btn btn-outline" id="clear" disabled><span data-icon="reset"></span> Clear</button>
+          </div>
+          <p class="muted" style="margin:18px 0 0;font-size:.9rem">No photo at hand? Try a generated sample (simple drawings, not real photos):</p>
+          <div class="samples" id="samples"></div>
+          <details style="margin-top:18px">
+            <summary style="cursor:pointer;font-weight:700">Advanced settings</summary>
+            <div style="margin-top:14px">
+              <div class="range"><label for="prior">Prior P(plastic) <output id="prior-out">0.45</output></label><input type="range" id="prior" min="0.05" max="0.95" step="0.01" value="0.45"></div>
+              <div class="range"><label for="gamma">MDP discount γ <output id="gamma-out">0.90</output></label><input type="range" id="gamma" min="0" max="0.99" step="0.01" value="0.9"></div>
+            </div>
+          </details>
+          <div id="upload-error" class="alert" role="alert" hidden style="margin-top:16px"></div>
+        </div>
+
+        <!-- result -->
+        <div class="card reveal d1" id="result-card" aria-live="polite">
+          <div id="state-empty" class="state">
+            <span data-icon="camera"></span>
+            <strong>No analysis yet</strong>
+            <span>Upload a photo and press <b>Analyze</b> to see the material, probabilities and the decision chain.</span>
+          </div>
+          <div id="state-loading" class="state" hidden>
+            <div class="spinner" role="progressbar" aria-label="Analysing"></div>
+            <strong>Analysing the image…</strong>
+            <span id="loading-step">CNN → Bayes → MDP → A*</span>
+          </div>
+          <div id="state-error" class="state" hidden>
+            <span data-icon="alert" style="color:var(--danger)"></span>
+            <strong>Analysis failed</strong>
+            <span id="error-text"></span>
+            <button class="btn btn-sm" id="retry">Try again</button>
+          </div>
+          <div id="state-result" hidden></div>
+        </div>
+      </div>
+
+      <div class="container" id="chain-wrap" hidden>
+        <div class="reveal in" style="margin-top:40px">
+          <span class="eyebrow">Decision chain for this photo</span>
+          <h2>CNN → Bayes → MDP → A*</h2>
+        </div>
+        <div class="grid grid-2" style="margin-top:20px">
+          <div class="chain" id="chain"></div>
+          <div class="card">
+            <h3>A* route of the sorting robot</h3>
+            <p class="muted" id="route-text"></p>
+            <canvas class="grid-canvas" id="route-canvas" aria-label="Robot route on the warehouse grid" role="img"></canvas>
+            <div class="legend">
+              <span><i style="background:#F0FAF5"></i>Robot</span><span><i style="background:#F5C518"></i>Plastic bin</span>
+              <span><i style="background:#2F80ED"></i>Paper bin</span><span><i style="background:#4A6575"></i>Obstacle</span>
+              <span><i style="background:rgba(8,126,139,.8)"></i>Closed</span><span><i style="background:rgba(154,230,180,.5)"></i>Open</span>
+              <span><i style="background:#20B879"></i>Path</span>
+            </div>
+            <div class="kpis"><div class="kpi"><b id="k-steps">–</b><span>steps</span></div><div class="kpi"><b id="k-exp">–</b><span>expanded nodes</span></div><div class="kpi"><b id="k-ms">–</b><span>ms total</span></div></div>
+            <button class="btn btn-outline btn-sm" id="replay" disabled><span data-icon="play"></span> Replay route</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer"></div>
+  <script type="module" src="js/common.js"></script>
+  <script type="module" src="js/sorting.js"></script>
+</body>
+</html>

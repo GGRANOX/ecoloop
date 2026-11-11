@@ -1,0 +1,4 @@
+# Training + "model" mode (MobileNetV2). Installs PyTorch on top of the runtime deps.
+-r requirements.txt
+torch>=2.2
+torchvision>=0.17

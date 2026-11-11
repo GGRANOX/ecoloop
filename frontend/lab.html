@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Algorithms Lab — ECOLOOP</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2320B879'/%3E%3Cpath d='M13 25c0-7 5-12 15-12-1 9-5 14-11 14-2 0-3-.5-4-2z' fill='%23F0FAF5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="nav"></div>
+  <main id="main">
+    <section class="hero page-hero">
+      <div class="container reveal">
+        <span class="eyebrow" style="color:var(--mint);background:rgba(154,230,180,.1)">Interactive</span>
+        <h1>AI Algorithms <span class="grad-text">Lab</span></h1>
+        <p class="sub">Every number on this page is computed by the Python backend (astar.py, bayes.py, mdp.py) — the same code the sorting pipeline uses.</p>
+      </div>
+      <svg class="hero-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30c240 30 480 30 720 0s480-30 720 0v30H0z" fill="currentColor"/></svg>
+    </section>
+
+    <section class="section" style="padding-top:32px">
+      <div class="container">
+        <div class="center" style="margin-bottom:28px">
+          <div class="tabs" role="tablist" aria-label="Algorithms">
+            <button class="tab" role="tab" id="tab-astar" aria-controls="panel-astar" aria-selected="true">A* Search</button>
+            <button class="tab" role="tab" id="tab-bayes" aria-controls="panel-bayes" aria-selected="false" tabindex="-1">Bayes' Theorem</button>
+            <button class="tab" role="tab" id="tab-mdp" aria-controls="panel-mdp" aria-selected="false" tabindex="-1">MDP</button>
+          </div>
+        </div>
+
+        <!-- ================= A* ================= -->
+        <div class="tab-panel" id="panel-astar" role="tabpanel" aria-labelledby="tab-astar">
+          <div class="lab-layout">
+            <div class="card">
+              <div class="toolbar">
+                <div class="seg" role="group" aria-label="Click mode">
+                  <button aria-pressed="true" data-edit="wall">Toggle obstacle</button>
+                  <button aria-pressed="false" data-edit="start">Move robot</button>
+                </div>
+                <div class="seg" role="group" aria-label="Target">
+                  <button aria-pressed="true" data-target="plastic">Plastic</button>
+                  <button aria-pressed="false" data-target="paper">Paper</button>
+                  <button aria-pressed="false" data-target="auto">Auto (AI)</button>
+                </div>
+              </div>
+              <canvas class="grid-canvas" id="astar-canvas" role="img" aria-label="A* grid. Click cells to toggle obstacles or move the robot."></canvas>
+              <div class="legend">
+                <span><i style="background:#F0FAF5"></i>Robot (start)</span><span><i style="background:#F5C518"></i>Plastic bin</span><span><i style="background:#2F80ED"></i>Paper bin</span>
+                <span><i style="background:#4A6575"></i>Obstacle</span><span><i style="background:rgba(8,126,139,.8)"></i>Closed list</span><span><i style="background:rgba(154,230,180,.5)"></i>Open list</span><span><i style="background:#20B879"></i>Path</span>
+              </div>
+              <div class="toolbar" style="margin:16px 0 0">
+                <button class="btn" id="astar-run"><span data-icon="play"></span> Run A*</button>
+                <button class="btn btn-outline btn-sm" id="astar-random">Random obstacles</button>
+                <button class="btn btn-outline btn-sm" id="astar-clear">Clear obstacles</button>
+                <button class="btn btn-outline btn-sm" id="astar-reset"><span data-icon="reset"></span> Reset layout</button>
+              </div>
+            </div>
+            <div class="card">
+              <h3>A* search</h3>
+              <div class="formula">f(n) = <span class="w">g(n)</span> + <span class="w">h(n)</span></div>
+              <p style="margin-top:14px"><b>g(n)</b> — real cost from the start (1 per move).<br><b>h(n)</b> — Manhattan distance |Δx| + |Δy| to the bin. It never overestimates, so the path is optimal.</p>
+              <p class="muted">The <b>open list</b> holds discovered cells sorted by f; the cell with the lowest f is expanded and moved to the <b>closed list</b>.</p>
+              <div id="astar-msg" class="alert info" role="status">Click cells to edit the map, then press <b>Run A*</b>.</div>
+              <div class="kpis"><div class="kpi"><b id="a-steps">–</b><span>steps</span></div><div class="kpi"><b id="a-exp">–</b><span>closed</span></div><div class="kpi"><b id="a-open">–</b><span>open left</span></div></div>
+              <p class="muted" style="font-size:.88rem;margin:0">Target: <b id="a-target">plastic</b></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= BAYES ================= -->
+        <div class="tab-panel" id="panel-bayes" role="tabpanel" aria-labelledby="tab-bayes" hidden>
+          <div class="lab-layout">
+            <div class="card">
+              <h3>Bayes' theorem</h3>
+              <div class="formula">P(C|E) = <span class="w">P(E|C) · P(C)</span> / <span class="w">P(E)</span><br>P(E) = Σ P(E|Cᵢ) · P(Cᵢ)</div>
+              <p class="muted" style="margin-top:12px">C — true material, E — the evidence (what the classifier saw). The prior is our belief before looking at the photo; the likelihood says how probable this evidence is for each material.</p>
+              <h4 style="margin-top:20px">Step-by-step calculation</h4>
+              <ol class="steps-list" id="bayes-steps"></ol>
+              <div id="bayes-check" class="alert info" style="margin-top:14px"></div>
+            </div>
+            <div class="card">
+              <div class="range"><label for="b-prior">Prior P(plastic) <output id="b-prior-out"></output></label><input type="range" id="b-prior" min="0" max="1" step="0.01" value="0.45"></div>
+              <p class="muted" style="margin:-8px 0 14px;font-size:.85rem">P(paper) = 1 − P(plastic) = <b id="b-prior-paper"></b></p>
+              <div class="range"><label for="b-lp">Likelihood P(E | plastic) <output id="b-lp-out"></output></label><input type="range" id="b-lp" min="0" max="1" step="0.01" value="0.8"></div>
+              <div class="range"><label for="b-lq">Likelihood P(E | paper) <output id="b-lq-out"></output></label><input type="range" id="b-lq" min="0" max="1" step="0.01" value="0.2"></div>
+              <button class="btn btn-outline btn-sm" id="b-last" style="margin-bottom:16px">Use values from my last photo</button>
+              <div id="bayes-err" class="alert" hidden></div>
+              <div class="bayes-bars">
+                <div><h4 style="font-size:.85rem">Prior</h4><div class="vbars" id="vb-prior"></div></div>
+                <div><h4 style="font-size:.85rem">Likelihood</h4><div class="vbars" id="vb-lik"></div></div>
+                <div><h4 style="font-size:.85rem">Posterior</h4><div class="vbars" id="vb-post"></div></div>
+              </div>
+              <div class="kpis"><div class="kpi"><b id="b-pe">–</b><span>P(E)</span></div><div class="kpi"><b id="b-pp">–</b><span>P(plastic|E)</span></div><div class="kpi"><b id="b-pq">–</b><span>P(paper|E)</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= MDP ================= -->
+        <div class="tab-panel" id="panel-mdp" role="tabpanel" aria-labelledby="tab-mdp" hidden>
+          <div class="lab-layout">
+            <div class="card">
+              <h3>Markov Decision Process</h3>
+              <svg class="mdp-graph" id="mdp-graph" viewBox="0 0 760 360" role="img" aria-label="MDP state graph"></svg>
+              <p class="muted" style="margin-top:12px;font-size:.9rem">Value iteration: V<sub>k+1</sub>(s) = max<sub>a</sub> Σ<sub>s'</sub> T(s,a,s') [R(s,a) + γ·V<sub>k</sub>(s')]. Rewards: correct sort +10, wrong sort −10, inspect again −1.</p>
+              <h4 style="margin-top:18px">Q(s, a) and optimal policy</h4>
+              <div class="table-wrap"><table id="q-table"></table></div>
+              <h4 style="margin-top:18px">Transition probabilities T(s, a, s') and expected rewards R(s, a)</h4>
+              <div class="table-wrap"><table id="t-table"></table></div>
+              <h4 style="margin-top:18px">Value iteration — V(s) per iteration</h4>
+              <div class="table-wrap"><table id="v-table"></table></div>
+            </div>
+            <div class="card">
+              <div class="range"><label for="m-post">Posterior P(plastic) <output id="m-post-out"></output></label><input type="range" id="m-post" min="0" max="1" step="0.01" value="0.7"></div>
+              <div class="range"><label for="m-gamma">Discount factor γ <output id="m-gamma-out"></output></label><input type="range" id="m-gamma" min="0" max="0.99" step="0.01" value="0.9"></div>
+              <div class="range"><label for="m-succ">Re-inspection success <output id="m-succ-out"></output></label><input type="range" id="m-succ" min="0.05" max="1" step="0.05" value="0.8"></div>
+              <div class="range"><label for="m-acc">Accuracy after re-inspection <output id="m-acc-out"></output></label><input type="range" id="m-acc" min="0.5" max="1" step="0.01" value="0.95"></div>
+              <div id="mdp-err" class="alert" hidden></div>
+              <div id="mdp-decision" class="alert info" role="status"></div>
+              <div class="kpis"><div class="kpi"><b id="m-iter">–</b><span>iterations</span></div><div class="kpi"><b id="m-er">–</b><span>expected reward</span></div><div class="kpi"><b id="m-conf">–</b><span>confidence</span></div></div>
+              <h4 style="font-size:.9rem">Convergence: max |V<sub>k+1</sub> − V<sub>k</sub>| (log scale)</h4>
+              <canvas class="chart" id="mdp-chart" aria-label="Convergence chart" role="img"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footer"></div>
+  <script type="module" src="js/common.js"></script>
+  <script type="module" src="js/lab.js"></script>
+</body>
+</html>
